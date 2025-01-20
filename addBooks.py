@@ -13,27 +13,74 @@ with open('info.json','r') as f:
 library_name = data['Library_name']
 main_owner = data['Owner']
 
+def get_manual_book_info(prefill_isbn="", callback=None):
+    manual_info = {}
+
+    def submit_manual_info():
+        manual_info['isbn'] = isbn_entry.get()
+        manual_info['title'] = title_entry.get()
+        manual_info['authors'] = authors_entry.get()
+        manual_info['publisher'] = publisher_entry.get()
+        manual_window.destroy()
+        if callback:
+            callback(manual_info)
+
+    manual_window = Tk()
+    manual_window.title("Manual Book Entry")
+    manual_window.geometry("400x300")
+
+    Label(manual_window, text="ISBN:").pack()
+    isbn_entry = Entry(manual_window)
+    isbn_entry.pack()
+    isbn_entry.insert(0, prefill_isbn)  # Prefill the ISBN
+
+    Label(manual_window, text="Title:").pack()
+    title_entry = Entry(manual_window)
+    title_entry.pack()
+
+    Label(manual_window, text="Authors:").pack()
+    authors_entry = Entry(manual_window)
+    authors_entry.pack()
+
+    Label(manual_window, text="Publisher:").pack()
+    publisher_entry = Entry(manual_window)
+    publisher_entry.pack()
+
+    submit_button = Button(manual_window, text="Submit", command=submit_manual_info)
+    submit_button.pack()
+
+    manual_window.mainloop()
 
 def bookRegister(library):
+    def add_book_to_library(manual_info):
+        book_info = (manual_info['title'], manual_info['authors'].split(','), manual_info['publisher'], None)
+        book_id = manual_info['isbn']
+        id = determine_next_id(library.ID.to_list())
+        title, authors, publisher, image = book_info
+        print(title, authors, publisher, owner, image)
+        library.loc[len(library)] = [id, book_id, title, authors, publisher, owner, image]
+        library.drop_duplicates(subset='ISBN', keep='first', inplace=True)
+        library.to_csv('books.csv', sep=';', index=False)
+        MessageBox.showinfo("Success", "Book added successfully")
+
     book_id = bookInfo1.get()
     owner = bookInfo4.get()
+    if owner is None or pd.isnull(owner) or owner == 'nan' or owner == '':
+        owner = main_owner
     book_info = get_book_info(book_id)
+    print(f"bookinfo: {book_info}")
     if book_info is None:
         MessageBox.showerror("Error", "Book not found")
+        get_manual_book_info(prefill_isbn=book_id, callback=add_book_to_library)
         return
-    # id is max value of ID in library + 1 or if there is a gap in the ID's it will be the first gap or if no ID's it will be 0
-    id = determine_next_id(library.ID.to_list())
 
-     
+    id = determine_next_id(library.ID.to_list())
     title, authors, publisher, image = book_info
-    print(title, authors, publisher, owner,image)
-    library.loc[len(library)] = [id,book_id, title, authors, publisher, owner, image]
+    print(title, authors, publisher, owner, image)
+    library.loc[len(library)] = [id, book_id, title, authors, publisher, owner, image]
     library.drop_duplicates(subset='ISBN', keep='first', inplace=True)
     library.to_csv('books.csv', sep=';', index=False)
-    # bookInfo1.delete(0, END)
-    # bookInfo4.delete(0, END)
     MessageBox.showinfo("Success", "Book added successfully")
-    root.destroy()
 
 def addBook(library):
     global bookInfo1, bookInfo4, canvas, root
@@ -78,7 +125,7 @@ def addBook(library):
     
     root.mainloop()
 
-# addBook()
+
 
 def importBooks(library):
     file_path = filedialog.askopenfilename()
@@ -99,3 +146,4 @@ def importBooks(library):
 
     library.to_csv('books.csv', sep=';', index=False)
     MessageBox.showinfo("Success", "Books imported successfully")
+

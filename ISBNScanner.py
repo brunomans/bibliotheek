@@ -13,27 +13,22 @@ class ISBNScanner:
         self.last_valid_isbn = None
         self.barcode_detected = False
 
-    # def create_table(self):
-    #     if not os.path.exists('isbns.csv'):
-    #         df = pd.DataFrame(columns=['ISBN'])
-    #         df.to_csv('isbns.csv', index=False, sep=';')
+    # def isbn_exists(self, isbn):
+    #     df = pd.read_csv('isbns.csv', sep=';')
+    #     return isbn in df['ISBN'].values
 
-    def isbn_exists(self, isbn):
-        df = pd.read_csv('isbns.csv', sep=';')
-        return isbn in df['ISBN'].values
+    # def store_isbn(self, isbn, frame):
+    #     if self.isbn_exists(isbn):
+    #         print('ISBN already exists')
+    #         return False
 
-    def store_isbn(self, isbn, frame):
-        if self.isbn_exists(isbn):
-            print('ISBN already exists')
-            return False
+    #     df = pd.read_csv('isbns.csv', sep=';')
+    #     df = df.append({'ISBN': isbn}, ignore_index=True)
+    #     df.to_csv('isbns.csv', index=False, sep=';')
+    #     print('ISBN stored')
 
-        df = pd.read_csv('isbns.csv', sep=';')
-        df = df.append({'ISBN': isbn}, ignore_index=True)
-        df.to_csv('isbns.csv', index=False, sep=';')
-        print('ISBN stored')
-
-        self.save_capture(frame, isbn)
-        return True
+    #     self.save_capture(frame, isbn)
+    #     return True
 
     def save_capture(self, frame, isbn):
         if not os.path.exists('captures'):
@@ -45,8 +40,6 @@ class ISBNScanner:
         cap = cv2.VideoCapture(0)
         while True:
             ret, frame = cap.read()
-
-            time.sleep(1)
 
             cv2.imshow('Barcode Scanner', frame)
 
@@ -73,8 +66,8 @@ class ISBNScanner:
             if self.barcode_detected:
                 print('Barcode detected')
                 print("Last valid ISBN:", self.last_valid_isbn)
-            else:
-                print('No barcode detected')
+            # else:
+            #     print('No barcode detected')
 
             self.barcode_detected = False
 
@@ -87,19 +80,19 @@ class ISBNScanner:
 
     def is_valid_isbn(self, isbn):
         isbn = isbn.replace('-', '').replace(' ', '')
-        return isbnlib.is_isbn13(isbn) or isbnlib.is_isbn10(isbn)
+        return isbnlib.is_isbn13(isbn)
 
     def start_scanning(self):
         print("Starting barcode scanner - Press 'q' or 'esc' to quit")
 
-        # self.create_table()
+        self.create_table()
         self.capture_barcode()
 
     def export_barcodes_to_csv(self):
         df = pd.DataFrame(self.detected_barcodes, columns=['ISBN'])
-        df = df.drop_duplicates(subset='ISBN', keep='first')
-        df.to_csv('scanned_barcodes.csv', index=False, sep=';')
-
+        df.drop_duplicates(subset='ISBN', keep='first', inplace=True)
+        df.to_csv('detected_barcodes.csv', index=False)
+        print('Barcodes exported to detected_barcodes.csv')
 # if __name__ == '__main__':
 #     scanner = ISBNScanner()
 #     scanner.start_scanning()

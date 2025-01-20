@@ -30,7 +30,7 @@ def get_book_info(isbn):
         # if no error new_data will be a dictionary with the book info else return None
         for service in ['wiki', 'openl']:
                 try:
-                    new_data = meta(isbn=isbn, service=service)
+                    new_data = meta(isbn=str(isbn), service=service)
 
                     if new_data:
                         title = new_data['Title']
@@ -40,7 +40,7 @@ def get_book_info(isbn):
                         print(f"Title: {title}")
                         print(f"Authors: {authors}")
                         print(f"Publisher: {publisher}")
-                        return new_data
+                        return title, authors, publisher, None
                     else:
                         print(f"No data found from {service}")
                 except Exception as e:
@@ -52,9 +52,9 @@ def get_book_info(isbn):
 
     else:
         book = data['items'][0]['volumeInfo']
-        title = book['title']
-        authors = book['authors']
-        publisher = book['publisher']
+        title = book.get('title', None)
+        authors = book.get('authors', None)
+        publisher = book.get('publisher', None)
         # year = book['publishedDate'].dt.year
     # if no image set nan
     if 'imageLinks' not in book:

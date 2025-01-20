@@ -1,7 +1,7 @@
 import pandas as pd
 from tkinter import *
 from tkinter import ttk
-from PIL import Image, ImageTk, ImageDraw
+from PIL import Image, ImageTk, ImageDraw, ImageFont
 import requests
 from io import BytesIO
 import sys
@@ -15,19 +15,21 @@ library_name = data['Library_name']
 
 def fetch_image(row):
     image_url = row['Image']  # Get the image URL from the DataFrame
-    print(f"Fetching image: {image_url}")
+    # print(f"Fetching image: {image_url}")
     if image_url is None or pd.isnull(image_url) or image_url == 'nan': 
-        print("No image URL found")
+        # print("No image URL found")
         title = row['Title']
         photo = Image.open('bookcover.jpg')
         # write the title of the book on the image
         draw = ImageDraw.Draw(photo)
         # draw in the center of the image
+        font_size = 40
+        font = ImageFont.truetype("arial.ttf", font_size)
         text_width, text_height = photo.size
         width, height = photo.size
         x = (width - text_width) / 2
         y = (height - text_height) / 2
-        draw.text((x, y), title, fill='White')
+        draw.text((x, y), title, fill='White', font=font)
 
 
 
@@ -130,19 +132,19 @@ def View(root, library):
     labelFrame.place(relx=0.1, rely=0.3, relwidth=0.8, relheight=0.5)
 
     # Initial view - images
-    show_images()
+    show_treeview()
 
     # Button to switch views
-    switchBtn = Button(top, text="Switch View", bg='#f7f1e3', fg='black', command=lambda: show_treeview() if switchBtn['text'] == "Switch View" else show_images())
+    switchBtn = Button(top, text="Switch to Images", bg='#f7f1e3', fg='black', command=lambda: show_images() if switchBtn['text'] == "Switch to Images" else show_treeview())
     switchBtn.place(relx=0.3, rely=0.9, relwidth=0.4, relheight=0.08)
 
     def toggle_button_text():
-        if switchBtn['text'] == "Switch View":
-            switchBtn['text'] = "Switch to Images"
+        if switchBtn['text'] == "Switch to Images":
+            switchBtn['text'] = "Switch to DataFrame"
         else:
-            switchBtn['text'] = "Switch View"
+            switchBtn['text'] = "Switch to Images"
 
-    switchBtn.config(command=lambda: [toggle_button_text(), show_treeview() if switchBtn['text'] == "Switch to Images" else show_images()])
+    switchBtn.config(command=lambda: [toggle_button_text(), show_images() if switchBtn['text'] == "Switch to DataFrame" else show_treeview()])
 
     top.mainloop()
 

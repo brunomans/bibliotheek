@@ -14,7 +14,7 @@ def scan_isbn(library):
     scanner = ISBNScanner()
     scanner.capture_barcode()
 
-    scanned_df = pd.read_csv('scanned_barcodes.csv', sep=';')
+    scanned_df = pd.read_csv('detected_barcodes.csv', sep=';')
 
     for isbn in scanned_df['ISBN']:
         book_info = get_book_info(isbn)
