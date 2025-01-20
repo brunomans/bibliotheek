@@ -6,6 +6,7 @@ import PIL.Image
 from addBooks import *
 from viewBooks import *
 from editBook import *
+from scanISBN import *
 
 with open('info.json','r') as f:
     data = json.load(f)
@@ -14,6 +15,7 @@ with open('info.json','r') as f:
 library_name = data['Library_name']
 
 library = pd.read_csv('books.csv', sep=';')
+library.drop_duplicates(subset='ISBN', keep='first', inplace=True)
 
 background_color = "#2F1B10"
 
@@ -47,6 +49,12 @@ btn3.place(relx=0.28, rely=0.6, relwidth=0.45, relheight=0.1)
 
 btn4 = Button(root, text="Import Books", bg=background_color, fg='white', command= lambda:importBooks(library))
 btn4.place(relx=0.28, rely=0.7, relwidth=0.45, relheight=0.1)
+
+btn5 = Button(root, text='Scan ISBN', bg=background_color, fg='white', command=lambda:scan_isbn(library))
+btn5.place(relx=0.28, rely=0.8, relwidth=0.45, relheight=0.1)
+
+btn6 = Button(root, text='Quit', bg=background_color, fg='white', command=root.destroy)
+btn6.place(relx=0.28, rely=0.9, relwidth=0.45, relheight=0.1)
 
 root.mainloop()
 

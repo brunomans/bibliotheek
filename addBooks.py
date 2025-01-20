@@ -4,6 +4,8 @@ from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox as MessageBox
 import json
+from isbnlib import meta
+from utils import *
 
 with open('info.json','r') as f:
     data = json.load(f)
@@ -11,23 +13,6 @@ with open('info.json','r') as f:
 library_name = data['Library_name']
 main_owner = data['Owner']
 
-def get_book_info(isbn):
-    url = f'https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}'
-    response = requests.get(url)
-    data = response.json()
-    # print(data)
-    if data['totalItems'] == 0:
-        return None
-    book = data['items'][0]['volumeInfo']
-    title = book['title']
-    authors = book['authors']
-    publisher = book['publisher']
-    # if no image set nan
-    if 'imageLinks' not in book:
-        image = None
-    else:
-        image = book['imageLinks']['thumbnail']
-    return title, authors, publisher, image
 
 def bookRegister(library):
     book_id = bookInfo1.get()
@@ -36,7 +21,10 @@ def bookRegister(library):
     if book_info is None:
         MessageBox.showerror("Error", "Book not found")
         return
-    id = len(library)
+    # id is max value of ID in library + 1 or if there is a gap in the ID's it will be the first gap or if no ID's it will be 0
+    id = determine_next_id(library.ID.to_list())
+
+     
     title, authors, publisher, image = book_info
     print(title, authors, publisher, owner,image)
     library.loc[len(library)] = [id,book_id, title, authors, publisher, owner, image]
@@ -98,7 +86,7 @@ def importBooks(library):
         return
     new_books = pd.read_csv(file_path, sep=';')
     for book in new_books.iterrows():
-        id = len(library)
+        id = determine_next_id(library.ID.to_list())
         owner = main_owner
         book_id = book[1]['ISBN']
         book_info = get_book_info(book_id)

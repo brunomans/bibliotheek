@@ -89,9 +89,9 @@ def deleteBook(library):
     if not confirm:
         return
 
-    library.drop(library[library['ID'] == book_id].index, inplace=True)
-    library.reset_index(drop=True, inplace=True)
-    library['ID'] = library.index  # Update the ID column to match the new index
+    library.drop(library[library['ID'] == book_id], inplace=True)
+    # library.reset_index(drop=True, inplace=True)
+    # library['ID'] = library  # Update the ID column to match the new index
     library.to_csv('books.csv', sep=';', index=False)
     MessageBox.showinfo("Success", "Book deleted successfully")
     # root.destroy()
