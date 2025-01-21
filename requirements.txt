@@ -1,0 +1,4 @@
+pandas==2.1.2
+requests==2.31.0
+isbnlib==3.10.14
+pyzbar==0.1.9
