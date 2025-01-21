@@ -28,7 +28,6 @@ root.minsize(width=400, height=400)
 root.maxsize(width=imageSizeWidth, height=imageSizeHeight)
 root.geometry("600x400")
 
-# Keep a reference to the PhotoImage object
 img = ImageTk.PhotoImage(background_image)
 canvas = Canvas(root, width=imageSizeWidth, height=imageSizeHeight)
 canvas.create_image(0, 0, anchor=NW, image=img)

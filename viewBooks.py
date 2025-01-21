@@ -13,7 +13,7 @@ with open('info.json','r') as f:
 library_name = data['Library_name']
 
 def fetch_image(row):
-    image_url = row['Image']  # Get the image URL from the DataFrame
+    image_url = row['Image']
     try:
         if image_url is None or pd.isnull(image_url) or image_url == 'nan':
 
@@ -41,19 +41,17 @@ def fetch_image(row):
 
 
 def View(root, library):
-    # List to hold image references
     image_references = []
 
     def show_images():
-        # Clear the frame
         for widget in labelFrame.winfo_children():
             widget.destroy()
 
-        # Create a canvas and a scrollbar
-        canvas = Canvas(labelFrame, bg='#2e2e2e')  # Set background color
+
+        canvas = Canvas(labelFrame, bg='#2e2e2e')  
         scrollbar_y = Scrollbar(labelFrame, orient=VERTICAL, command=canvas.yview)
         scrollbar_x = Scrollbar(labelFrame, orient=HORIZONTAL, command=canvas.xview)
-        scrollable_frame = Frame(canvas, bg='#2e2e2e')  # Set background color
+        scrollable_frame = Frame(canvas, bg='#2e2e2e') 
 
         scrollable_frame.bind(
             "<Configure>",
@@ -66,36 +64,31 @@ def View(root, library):
         canvas.configure(yscrollcommand=scrollbar_y.set, xscrollcommand=scrollbar_x.set)
 
         def update_images():
-            # Clear the frame
             for widget in scrollable_frame.winfo_children():
                 widget.destroy()
 
-            # Calculate the number of columns based on the width of the labelFrame
             labelFrame.update_idletasks()
-            columns = max(1, labelFrame.winfo_width() // 100)  # Adjust the divisor as needed
+            columns = max(1, labelFrame.winfo_width() // 100)  
 
             for index, row in library.iterrows():
-                photo = fetch_image(row)  # Fetch image from URL
+                photo = fetch_image(row)  
                 if photo:
-                    label = Label(scrollable_frame, image=photo, bg='#2e2e2e')  # Set background color
-                    label.image = photo  # Store reference to image in the label widget
+                    label = Label(scrollable_frame, image=photo, bg='#2e2e2e')  
+                    label.image = photo  
                     label.grid(row=index // columns, column=index % columns, padx=10, pady=10)
-                    image_references.append(photo)  # Keep reference in the list
+                    image_references.append(photo)  
 
         update_images()
         canvas.pack(side=LEFT, fill=BOTH, expand=True)
         scrollbar_y.pack(side=RIGHT, fill=Y)
         scrollbar_x.pack(side=BOTTOM, fill=X)
 
-        # Bind the resize event to update the images
         labelFrame.bind("<Configure>", lambda event: update_images())
 
     def show_treeview():
-        # Clear the frame
         for widget in labelFrame.winfo_children():
             widget.destroy()
 
-        # Display the Treeview in the frame
         tree = ttk.Treeview(labelFrame, columns=(1,2,3,4,5), show="headings", height="5")
         tree.pack(side='left', expand=True, fill='both')
 
@@ -136,10 +129,8 @@ def View(root, library):
     labelFrame = Frame(top, bg='black')
     labelFrame.place(relx=0.1, rely=0.3, relwidth=0.8, relheight=0.5)
 
-    # Initial view - images
     show_treeview()
 
-    # Button to switch views
     switchBtn = Button(top, text="Switch to Images", bg='#f7f1e3', fg='black', command=lambda: show_images() if switchBtn['text'] == "Switch to Images" else show_treeview())
     switchBtn.place(relx=0.3, rely=0.9, relwidth=0.4, relheight=0.08)
 

@@ -41,7 +41,6 @@ def scan_isbn(library):
             library.drop_duplicates(subset='ISBN', keep='first', inplace=True)
             print("Book added successfully")
 
-    # Function to handle manual entry pop-ups sequentially
     def process_next_manual_entry(index=0):
         if index < len(none_books):
             isbn = none_books[index]
@@ -50,11 +49,10 @@ def scan_isbn(library):
             def callback(manual_info):
                 if manual_info:
                     add_book_to_library(manual_info)
-                process_next_manual_entry(index + 1)  # Proceed to next book after handling current
+                process_next_manual_entry(index + 1)  
 
             get_manual_book_info(prefill_isbn=isbn, callback=callback)
 
-    # Start processing manual entries
     process_next_manual_entry()
 
     library.to_csv('books.csv', sep=';', index=False)

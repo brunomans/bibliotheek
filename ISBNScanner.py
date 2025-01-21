@@ -5,6 +5,7 @@ import isbnlib
 import time
 import pandas as pd
 
+# Based on https://github.com/FaxanaduHacks/librarian adjusted for this specific project
 class ISBNScanner:
     def __init__(self):
         self.detected_barcodes = []
@@ -48,11 +49,16 @@ class ISBNScanner:
                 for barcode in barcodes:
                     barcodeData = barcode.data.decode("utf-8")
                     self.barcode_detected = True
-                    print('Barcode detected:', barcodeData)
+                    # print('Barcode detected:', barcodeData)
                     if isbnlib.is_isbn13(barcodeData):
-                        print('Valid ISBN:', barcodeData)
+                        # print('Valid ISBN:', barcodeData)
                         self.last_valid_isbn = barcodeData
-                        self.detected_barcodes.append(barcodeData)  # Add barcode to list
+                        if barcodeData in self.detected_barcodes:
+                            # print('ISBN already detected')
+                            continue
+                        print("New Barcode detected")
+                        self.detected_barcodes.append(barcodeData)
+                        print(self.detected_barcodes)  
                         self.book_detected = True
                         break
 
@@ -63,9 +69,9 @@ class ISBNScanner:
                 self.book_detected = False
                 self.isbn_stored = False
 
-            if self.barcode_detected:
-                print('Barcode detected')
-                print("Last valid ISBN:", self.last_valid_isbn)
+            # if self.barcode_detected:
+            #     print('Barcode detected')
+            #     print("Last valid ISBN:", self.last_valid_isbn)
             # else:
             #     print('No barcode detected')
 
@@ -76,7 +82,7 @@ class ISBNScanner:
 
         cap.release()
         cv2.destroyAllWindows()
-        self.export_barcodes_to_csv()  # Export barcodes when exiting
+        self.export_barcodes_to_csv()  
 
     def is_valid_isbn(self, isbn):
         isbn = isbn.replace('-', '').replace(' ', '')
@@ -85,7 +91,7 @@ class ISBNScanner:
     def start_scanning(self):
         print("Starting barcode scanner - Press 'q' or 'esc' to quit")
 
-        self.create_table()
+        # self.create_table()
         self.capture_barcode()
 
     def export_barcodes_to_csv(self):
@@ -93,6 +99,8 @@ class ISBNScanner:
         df.drop_duplicates(subset='ISBN', keep='first', inplace=True)
         df.to_csv('detected_barcodes.csv', index=False)
         print('Barcodes exported to detected_barcodes.csv')
-# if __name__ == '__main__':
-#     scanner = ISBNScanner()
-#     scanner.start_scanning()
+
+
+if __name__ == '__main__':
+    scanner = ISBNScanner()
+    scanner.start_scanning()

@@ -49,7 +49,6 @@ def bookRegister(library):
     if book_id == "" or owner == "":
         return
 
-    # Convert book_id to the appropriate type (e.g., integer)
     try:
         book_id = int(book_id)
     except ValueError:
@@ -65,15 +64,13 @@ def bookRegister(library):
     print(library.loc[library['ID'] == book_id])
     library.to_csv('books.csv', sep=';', index=False)
     MessageBox.showinfo("Success", "Book updated successfully")
-    # print("Book updated successfully")
-    # root.destroy()
+
     
 def deleteBook(library):
     book_id = bookInfo1.get()
     if book_id == "":
         return
 
-    # Convert book_id to the appropriate type (e.g., integer)
     try:
         book_id = int(book_id)
     except ValueError:
@@ -88,11 +85,7 @@ def deleteBook(library):
     confirm = MessageBox.askyesno("Confirm Delete", f"Are you sure you want to delete the book with title: {book_title}?")
     if not confirm:
         return
-
     library.drop(library[library['ID'] == book_id].index, inplace=True)
-    # library.reset_index(drop=True, inplace=True)
-    # library['ID'] = library  # Update the ID column to match the new index
     library.to_csv('books.csv', sep=';', index=False)
     MessageBox.showinfo("Success", "Book deleted successfully")
-    # root.destroy()
 

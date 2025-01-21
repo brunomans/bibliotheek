@@ -1,10 +1,8 @@
-import requests
 import pandas as pd
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox as MessageBox
 import json
-from isbnlib import meta
 from utils import *
 
 with open('info.json','r') as f:
@@ -37,7 +35,7 @@ def get_manual_book_info(prefill_isbn="", callback=None, skip_callback=None):
     Label(manual_window, text="ISBN:").pack()
     isbn_entry = Entry(manual_window)
     isbn_entry.pack()
-    isbn_entry.insert(0, prefill_isbn)  # Prefill the ISBN
+    isbn_entry.insert(0, prefill_isbn)  
 
     Label(manual_window, text="Title:").pack()
     title_entry = Entry(manual_window)
@@ -97,7 +95,6 @@ def addBook(library):
     root.minsize(width=400, height=400)
     root.geometry("600x400")
     
-    # bookTable = "books" # 
     canvas = Canvas(root)
     
     canvas.config(bg="#ff6e40")
@@ -128,6 +125,7 @@ def addBook(library):
     SubmitBtn = Button(root,text="SUBMIT",bg='#d1ccc0', fg='black', command= lambda:bookRegister(library))
     SubmitBtn.place(relx=0.28,rely=0.9, relwidth=0.18,relheight=0.08)
     
+    # Quit Button
     quitBtn = Button(root,text="Quit",bg='#f7f1e3', fg='black', command=root.destroy)
     quitBtn.place(relx=0.53,rely=0.9, relwidth=0.18,relheight=0.08)
     
