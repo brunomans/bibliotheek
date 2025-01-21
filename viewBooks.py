@@ -4,8 +4,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk, ImageDraw, ImageFont
 import requests
 from io import BytesIO
-import sys
-import gc
+from utils import *
 import json
 
 with open('info.json','r') as f:
@@ -15,53 +14,33 @@ library_name = data['Library_name']
 
 def fetch_image(row):
     image_url = row['Image']  # Get the image URL from the DataFrame
-    # print(f"Fetching image: {image_url}")
-    if image_url is None or pd.isnull(image_url) or image_url == 'nan': 
-        # print("No image URL found")
-        title = row['Title']
-        photo = Image.open('bookcover.jpg')
-        # write the title of the book on the image
-        draw = ImageDraw.Draw(photo)
-        # draw in the center of the image
-        font_size = 40
-        font = ImageFont.truetype("arial.ttf", font_size)
-        text_width, text_height = photo.size
-        width, height = photo.size
-        x = (width - text_width) / 2
-        y = (height - text_height) / 2
-        draw.text((x, y), title, fill='White', font=font)
+    try:
+        if image_url is None or pd.isnull(image_url) or image_url == 'nan':
 
-
-
-
-
-        photo = photo.resize((60, 90), Image.LANCZOS)  # Resize the image
-        return ImageTk.PhotoImage(photo)  # Convert image to a format Tkinter can use
-    else:
-        """Fetch the image from the URL and return a PhotoImage object."""
-        try:
+            title = format_title(row['Title'])
+            photo = Image.open('bookcover.jpg')
+            draw = ImageDraw.Draw(photo)
+            font_size = 40
+            font = ImageFont.truetype("arial.ttf", font_size)
+            text_width, text_height = photo.size
+            width, height = photo.size
+            x = 0
+            y = 0
+            draw.text((x, y), title, fill='White', font=font)
+            photo = photo.resize((60, 90), Image.LANCZOS)
+            return ImageTk.PhotoImage(photo)
+        else:
             response = requests.get(image_url)
-            photo = Image.open(BytesIO(response.content))
-            photo = photo.resize((60, 90), Image.LANCZOS)  # Resize the image
-            photo = ImageTk.PhotoImage(photo)  # Convert image to a format Tkinter can use
+            img_data = response.content
+            img = Image.open(BytesIO(img_data))
+            img = img.resize((60, 90), Image.LANCZOS)
+            return ImageTk.PhotoImage(img)
+    except Exception as e:
+        print(f"Error fetching image: {e}")
+        return None
 
-            return photo
-        except Exception as e:
-            print(f"Error fetching image: {e}")
-            return None
-
-def check_garbage_collection(img):
-    """Check if an image is still in memory by looking at its reference count."""
-    # Get the reference count of the object
-    ref_count = sys.getrefcount(img)
-    print(f"Reference count of image: {ref_count}")
-    
-    # Use garbage collector to check if the image is still in memory
-    gc.collect()  # Forcing garbage collection
-    print(f"Garbage collected objects: {gc.garbage}")
 
 def View(root, library):
-    
     # List to hold image references
     image_references = []
 
@@ -70,20 +49,46 @@ def View(root, library):
         for widget in labelFrame.winfo_children():
             widget.destroy()
 
-        # Display images in the frame
-        for index, row in library.iterrows():
-            photo = fetch_image(row)  # Fetch image from URL
-            # check_garbage_collection(photo)
-            
-            if photo:
-                label = Label(labelFrame, image=photo)
-                label.image = photo  # Store reference to image in the label widget
-                label.pack(side='left', padx=10, pady=10)
+        # Create a canvas and a scrollbar
+        canvas = Canvas(labelFrame, bg='#2e2e2e')  # Set background color
+        scrollbar_y = Scrollbar(labelFrame, orient=VERTICAL, command=canvas.yview)
+        scrollbar_x = Scrollbar(labelFrame, orient=HORIZONTAL, command=canvas.xview)
+        scrollable_frame = Frame(canvas, bg='#2e2e2e')  # Set background color
 
-                image_references.append(photo)  # Keep reference in the list
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
 
-                # Check if the image is garbage collected
-                
+        canvas.create_window((0, 0), window=scrollable_frame, anchor=NW)
+        canvas.configure(yscrollcommand=scrollbar_y.set, xscrollcommand=scrollbar_x.set)
+
+        def update_images():
+            # Clear the frame
+            for widget in scrollable_frame.winfo_children():
+                widget.destroy()
+
+            # Calculate the number of columns based on the width of the labelFrame
+            labelFrame.update_idletasks()
+            columns = max(1, labelFrame.winfo_width() // 100)  # Adjust the divisor as needed
+
+            for index, row in library.iterrows():
+                photo = fetch_image(row)  # Fetch image from URL
+                if photo:
+                    label = Label(scrollable_frame, image=photo, bg='#2e2e2e')  # Set background color
+                    label.image = photo  # Store reference to image in the label widget
+                    label.grid(row=index // columns, column=index % columns, padx=10, pady=10)
+                    image_references.append(photo)  # Keep reference in the list
+
+        update_images()
+        canvas.pack(side=LEFT, fill=BOTH, expand=True)
+        scrollbar_y.pack(side=RIGHT, fill=Y)
+        scrollbar_x.pack(side=BOTTOM, fill=X)
+
+        # Bind the resize event to update the images
+        labelFrame.bind("<Configure>", lambda event: update_images())
 
     def show_treeview():
         # Clear the frame
@@ -147,4 +152,3 @@ def View(root, library):
     switchBtn.config(command=lambda: [toggle_button_text(), show_images() if switchBtn['text'] == "Switch to DataFrame" else show_treeview()])
 
     top.mainloop()
-

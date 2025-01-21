@@ -1,7 +1,9 @@
 import pandas as pd
 import requests
 from isbnlib import meta 
-
+import sys
+import gc
+import textwrap
 
 
 
@@ -65,3 +67,41 @@ def get_book_info(isbn):
 # library = pd.read_csv('books.csv', sep=';')
 
 # print(determine_next_id(library['ID'].to_list()))  # 3
+
+def check_garbage_collection(img):
+    """Check if an image is still in memory by looking at its reference count."""
+    # Get the reference count of the object
+    ref_count = sys.getrefcount(img)
+    print(f"Reference count of image: {ref_count}")
+    
+    # Use garbage collector to check if the image is still in memory
+    gc.collect()  # Forcing garbage collection
+    print(f"Garbage collected objects: {gc.garbage}")
+
+
+
+def format_title(title, max_length=15):
+    words = title.split()
+    lines = []
+    current_line = " "
+
+    for word in words:
+        if len(current_line) + len(word) + (1 if current_line else 0) <= max_length:
+            if current_line:
+                current_line += " "
+            current_line += word
+        else:
+            if current_line:
+                lines.append(current_line)
+            current_line = " "
+            
+            while len(word) > max_length:
+                lines.append(word[:max_length-1] + "-")
+                word = word[max_length-1:]
+            
+            current_line = word
+
+    if current_line:
+        lines.append(current_line)
+
+    return "\n  ".join(lines)
