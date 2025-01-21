@@ -134,22 +134,50 @@ def addBook(library):
 
 
 def importBooks(library):
+    def add_book_to_library(manual_info):
+        book_info = (manual_info['title'], [manual_info['authors']], manual_info['publisher'], None)
+        book_id = manual_info['isbn']
+        id = determine_next_id(library.ID.to_list())
+        title, authors, publisher, image = book_info
+        print(title, authors, publisher, main_owner, image)
+        library.loc[len(library)] = [id, book_id, title, authors, publisher, main_owner, image]
+        library.drop_duplicates(subset='ISBN', keep='first', inplace=True)
+        library.to_csv('books.csv', sep=';', index=False)
+        print("Book added successfully")
+
     file_path = filedialog.askopenfilename()
     if file_path == '':
         return
     new_books = pd.read_csv(file_path, sep=';')
+    none_books = []
+
     for book in new_books.iterrows():
         id = determine_next_id(library.ID.to_list())
         owner = main_owner
         book_id = book[1]['ISBN']
         book_info = get_book_info(book_id)
         if book_info is None:
-            print("Book not found")
+            none_books.append(book_id)
+            print(f"Book with ISBN {book_id} not found. Please enter the details manually.")
             continue
         title, authors, publisher, image = book_info
-        library.loc[len(library)] = [id,book_id, title, authors, publisher, owner, image]
-    library.drop_duplicates(subset='ISBN', keep='first', inplace=True)
+        library.loc[len(library)] = [id, book_id, title, authors, publisher, owner, image]
+    
+    def process_next_manual_entry(index=0):
+        if index < len(none_books):
+            isbn = none_books[index]
+            print(f"Book with ISBN {isbn} not found. Please enter the details manually.")
+            
+            def callback(manual_info):
+                if manual_info:
+                    add_book_to_library(manual_info)
+                process_next_manual_entry(index + 1)  
 
+            get_manual_book_info(prefill_isbn=isbn, callback=callback)
+
+    process_next_manual_entry()
+
+    library.drop_duplicates(subset='ISBN', keep='first', inplace=True)
     library.to_csv('books.csv', sep=';', index=False)
     MessageBox.showinfo("Success", "Books imported successfully")
 
