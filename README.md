@@ -4,6 +4,7 @@ This project is a Book Library Management System that allows users to scan ISBN 
 
 ## Features
 
+- **Add books**: Add books based on ISBN barcode or from a csv file with ISBN codes.
 - **Scan ISBN Barcodes**: Automatically fetch book details using the ISBN barcode.
 - **Manual Book Entry**: Manually enter book details if the ISBN is not found.
 - **View Books**: Display books in a scrollable grid with images.
@@ -71,6 +72,7 @@ This project is a Book Library Management System that allows users to scan ISBN 
 6. **Import Books**:
     - Run the [addBooks.py](http://_vscodecontentref_/3) script to import books to the library.
     - Import a list of ISBNs to import the books.
+    - Must be formatted with "ISBN" as a header and saved as a .CSV file.
     - Not finished.
 
     ```sh
