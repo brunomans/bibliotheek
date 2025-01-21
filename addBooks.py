@@ -13,7 +13,7 @@ with open('info.json','r') as f:
 library_name = data['Library_name']
 main_owner = data['Owner']
 
-def get_manual_book_info(prefill_isbn="", callback=None):
+def get_manual_book_info(prefill_isbn="", callback=None, skip_callback=None):
     manual_info = {}
 
     def submit_manual_info():
@@ -24,6 +24,11 @@ def get_manual_book_info(prefill_isbn="", callback=None):
         manual_window.destroy()
         if callback:
             callback(manual_info)
+
+    def skip_manual_info():
+        manual_window.destroy()
+        if skip_callback:
+            skip_callback()
 
     manual_window = Tk()
     manual_window.title("Manual Book Entry")
@@ -49,7 +54,7 @@ def get_manual_book_info(prefill_isbn="", callback=None):
     submit_button = Button(manual_window, text="Submit", command=submit_manual_info)
     submit_button.pack()
 
-    close_button = Button(manual_window,text='Close', command=manual_window.destroy)
+    close_button = Button(manual_window,text='Close', command=skip_manual_info)
     close_button.pack()
 
     manual_window.mainloop()

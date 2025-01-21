@@ -16,6 +16,7 @@ library_name = data['Library_name']
 
 library = pd.read_csv('books.csv', sep=';')
 library.drop_duplicates(subset='ISBN', keep='first', inplace=True)
+library.sort_values(by='ID',inplace=True)
 
 background_color = "#2F1B10"
 
