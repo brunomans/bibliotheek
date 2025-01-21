@@ -49,6 +49,9 @@ def get_manual_book_info(prefill_isbn="", callback=None):
     submit_button = Button(manual_window, text="Submit", command=submit_manual_info)
     submit_button.pack()
 
+    close_button = Button(manual_window,text='Close', command=manual_window.destroy)
+    close_button.pack()
+
     manual_window.mainloop()
 
 def bookRegister(library):
