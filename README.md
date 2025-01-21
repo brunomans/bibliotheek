@@ -1,4 +1,4 @@
-# Bibliotheek - Book Library Management System
+er# Bibliotheek - Book Library Management System
 
 This project is a Book Library Management System that allows users to scan ISBN barcodes, manually enter book details, and view the library's collection. The system uses a combination of Python libraries such as `tkinter` for the GUI, `pandas` for data manipulation, and `PIL` for image processing.
 
@@ -73,7 +73,6 @@ This project is a Book Library Management System that allows users to scan ISBN 
     - Run the [addBooks.py](http://_vscodecontentref_/3) script to import books to the library.
     - Import a list of ISBNs to import the books.
     - Must be formatted with "ISBN" as a header and saved as a .CSV file.
-    - Not finished.
 
     ```sh
     python addBooks.py
